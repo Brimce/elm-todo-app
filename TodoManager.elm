@@ -7,6 +7,11 @@ import Html.Lazy exposing (lazy, lazy2, lazy3)
 import Signal exposing (Address)
 import Json.Decode as Json
 import String
+import Effects exposing (Effects, Never)
+import Http
+import Task
+import Json.Decode as JsonD exposing ((:=))
+import Json.Encode as JsonE
 
 --model
 type alias Model =
@@ -26,14 +31,18 @@ type Filter = All | Completed | Active
 
 initModel : Model
 initModel = 
-    { todos = sampleTodos
+    { todos = []--sampleTodos
     , currentTodo = Nothing
     , currentFilter = All
     , textInput = ""    
     }
-    
-sampleTodos =
-    [(Todo "Regarder un film" 0 False),(Todo "Regarder un autre film" 1 True)]
+  
+init : (Model, Effects Action)
+init =
+    (initModel, loadTodosFx)
+      
+--sampleTodos =
+--    [(Todo "Regarder un film" 0 False),(Todo "Regarder un autre film" 1 True)]
  
 
 isTodoTextValid : String -> Bool
@@ -101,31 +110,42 @@ type Action
     | EndEditingTodo Todo
     | ClearTodo Todo
     | LoadTodos
+    | OnTodosLoaded (Result Http.Error (List Todo))
     | SaveTodos
     | UpdateIsTodoCompleted Todo Bool
 
-update : Action -> Model -> Model
+update : Action -> Model -> (Model, Effects.Effects Action)
 update action model =
  case action of
     LoadTodos 
-        -> {model 
-              | todos = sampleTodos}
+        -> (model ,loadTodosFx)
     
+    OnTodosLoaded result 
+        -> case result of
+            Result.Ok todos
+                -> ({model 
+                        | todos = todos} 
+                   , Effects.none)
+            Result.Err err
+                ->  ({model 
+                        | todos = [], textInput = toString err} 
+                   , Effects.none)
+                   
     ChangeFilter f
-        -> {model 
-              | currentFilter = f}
+        -> ({model 
+              | currentFilter = f},Effects.none)
    
     UpdateInputText text
-        -> {model 
-              | textInput = text }
+        -> ({model 
+              | textInput = text },Effects.none)
     
     AddTodo
-        -> addTodo2 model
+        -> (addTodo2 model,Effects.none)
    
     UpdateIsTodoCompleted todo newValue
-        -> updateTodo (Todo todo.text todo.id newValue) model
+        -> (updateTodo (Todo todo.text todo.id newValue) model ,Effects.none)
     _ 
-        -> model
+        -> (model,Effects.none)
     
 --view
 
@@ -207,3 +227,26 @@ onEnter address value =
 is13 : Int -> Result String ()
 is13 code =
   if code == 13 then Ok () else Err "not the right key code"
+  
+-- API
+httpTask : Task.Task Http.Error (List Todo)
+httpTask =
+    Http.get todosDecoder "http://localhost:4000/todos"
+ 
+loadTodosFx : Effects.Effects Action
+loadTodosFx =
+    httpTask 
+        |> Task.toResult
+        |> Task.map OnTodosLoaded
+        |> Effects.task
+  
+todosDecoder : JsonD.Decoder (List Todo)
+todosDecoder =
+    JsonD.list todoDecoder
+
+todoDecoder : JsonD.Decoder (Todo)        
+todoDecoder =
+    JsonD.object3 Todo
+        ("text" := JsonD.string)
+        ("id" := JsonD.int)
+        ("isCompleted" := JsonD.bool)
