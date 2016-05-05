@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "A todo App",
-    "repository": "https://github.com/brimce/elm-todo-app.git",
+    "repository": "https://github.com/Brimce/elm-todo-app.git",
     "license": "BSD3",
     "source-directories": [
         "."
