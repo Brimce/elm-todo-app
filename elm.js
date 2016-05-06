@@ -11774,6 +11774,34 @@ Elm.Effects.make = function (_elm) {
                                 ,batch: batch
                                 ,toTask: toTask};
 };
+Elm.TodoManager = Elm.TodoManager || {};
+Elm.TodoManager.Ressources = Elm.TodoManager.Ressources || {};
+Elm.TodoManager.Ressources.make = function (_elm) {
+   "use strict";
+   _elm.TodoManager = _elm.TodoManager || {};
+   _elm.TodoManager.Ressources = _elm.TodoManager.Ressources || {};
+   if (_elm.TodoManager.Ressources.values)
+   return _elm.TodoManager.Ressources.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var Active = {ctor: "Active"};
+   var Completed = {ctor: "Completed"};
+   var All = {ctor: "All"};
+   var Todo = F3(function (a,b,c) {
+      return {text: a,id: b,isCompleted: c};
+   });
+   return _elm.TodoManager.Ressources.values = {_op: _op
+                                               ,Todo: Todo
+                                               ,All: All
+                                               ,Completed: Completed
+                                               ,Active: Active};
+};
 Elm.Native.Http = {};
 Elm.Native.Http.make = function(localRuntime) {
 
@@ -12145,56 +12173,25 @@ Elm.Http.make = function (_elm) {
                              ,RawNetworkError: RawNetworkError};
 };
 Elm.TodoManager = Elm.TodoManager || {};
-Elm.TodoManager.make = function (_elm) {
+Elm.TodoManager.Action = Elm.TodoManager.Action || {};
+Elm.TodoManager.Action.make = function (_elm) {
    "use strict";
    _elm.TodoManager = _elm.TodoManager || {};
-   if (_elm.TodoManager.values) return _elm.TodoManager.values;
+   _elm.TodoManager.Action = _elm.TodoManager.Action || {};
+   if (_elm.TodoManager.Action.values)
+   return _elm.TodoManager.Action.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Effects = Elm.Effects.make(_elm),
-   $Html = Elm.Html.make(_elm),
-   $Html$Attributes = Elm.Html.Attributes.make(_elm),
-   $Html$Events = Elm.Html.Events.make(_elm),
-   $Html$Lazy = Elm.Html.Lazy.make(_elm),
    $Http = Elm.Http.make(_elm),
-   $Json$Decode = Elm.Json.Decode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $String = Elm.String.make(_elm),
-   $Task = Elm.Task.make(_elm);
+   $TodoManager$Ressources = Elm.TodoManager.Ressources.make(_elm);
    var _op = {};
-   var is13 = function (code) {
-      return _U.eq(code,
-      13) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
-   };
-   var onEnter = F2(function (address,value) {
-      return A3($Html$Events.on,
-      "keydown",
-      A2($Json$Decode.customDecoder,$Html$Events.keyCode,is13),
-      function (_p0) {
-         return A2($Signal.message,address,value);
-      });
-   });
    var UpdateIsTodoCompleted = F2(function (a,b) {
       return {ctor: "UpdateIsTodoCompleted",_0: a,_1: b};
-   });
-   var createTodoItem = F2(function (address,todo) {
-      return A2($Html.div,
-      _U.list([]),
-      _U.list([$Html.text(A2($Basics._op["++"],
-              todo.text,
-              A2($Basics._op["++"]," ",$Basics.toString(todo.id))))
-              ,$Html.text(A2($Basics._op["++"],
-              ", a faire ? ",
-              $Basics.toString($Basics.not(todo.isCompleted))))
-              ,A2($Html.button,
-              _U.list([A2($Html$Events.onClick,
-              address,
-              A2(UpdateIsTodoCompleted,todo,$Basics.not(todo.isCompleted)))]),
-              _U.list([$Html.text(todo.isCompleted ? "Marquer \'non fait\'" : "Marquer \'fait\'")]))]));
    });
    var SaveTodos = {ctor: "SaveTodos"};
    var OnTodosLoaded = function (a) {
@@ -12218,75 +12215,121 @@ Elm.TodoManager.make = function (_elm) {
    var UpdateInputText = function (a) {
       return {ctor: "UpdateInputText",_0: a};
    };
-   var filtreTodo = F2(function (f,todo) {
-      var _p1 = f;
-      switch (_p1.ctor)
-      {case "All": return true;
-         case "Completed": return todo.isCompleted;
-         default: return $Basics.not(todo.isCompleted);}
-   });
-   var updateTodo = F2(function (todo,model) {
-      var updateTodo = function (t) {
-         return _U.eq(t.id,todo.id) ? _U.update(t,
-         {text: todo.text,isCompleted: todo.isCompleted}) : t;
-      };
-      return _U.update(model,
-      {todos: A2($List.map,updateTodo,model.todos)});
-   });
-   var isTodoTextValid = function (s) {
-      return A2(F2(function (x,y) {    return _U.cmp(x,y) < 0;}),
-      3,
-      $String.length(s));
+   return _elm.TodoManager.Action.values = {_op: _op
+                                           ,UpdateInputText: UpdateInputText
+                                           ,AddTodo: AddTodo
+                                           ,ChangeFilter: ChangeFilter
+                                           ,ClearCompleted: ClearCompleted
+                                           ,StartEditingTodo: StartEditingTodo
+                                           ,EndEditingTodo: EndEditingTodo
+                                           ,ClearTodo: ClearTodo
+                                           ,LoadTodos: LoadTodos
+                                           ,OnTodosLoaded: OnTodosLoaded
+                                           ,SaveTodos: SaveTodos
+                                           ,UpdateIsTodoCompleted: UpdateIsTodoCompleted};
+};
+Elm.TodoManager = Elm.TodoManager || {};
+Elm.TodoManager.Api = Elm.TodoManager.Api || {};
+Elm.TodoManager.Api.make = function (_elm) {
+   "use strict";
+   _elm.TodoManager = _elm.TodoManager || {};
+   _elm.TodoManager.Api = _elm.TodoManager.Api || {};
+   if (_elm.TodoManager.Api.values)
+   return _elm.TodoManager.Api.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Effects = Elm.Effects.make(_elm),
+   $Http = Elm.Http.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Task = Elm.Task.make(_elm),
+   $TodoManager$Action = Elm.TodoManager.Action.make(_elm),
+   $TodoManager$Ressources = Elm.TodoManager.Ressources.make(_elm);
+   var _op = {};
+   var todosDecoder = function () {
+      var todoDecoder = A4($Json$Decode.object3,
+      $TodoManager$Ressources.Todo,
+      A2($Json$Decode._op[":="],"text",$Json$Decode.string),
+      A2($Json$Decode._op[":="],"id",$Json$Decode.$int),
+      A2($Json$Decode._op[":="],"isCompleted",$Json$Decode.bool));
+      return $Json$Decode.list(todoDecoder);
+   }();
+   var httpTask = A2($Http.get,
+   todosDecoder,
+   "http://localhost:4000/todos");
+   var loadTodosFx = $Effects.task(A2($Task.map,
+   $TodoManager$Action.OnTodosLoaded,
+   $Task.toResult(httpTask)));
+   return _elm.TodoManager.Api.values = {_op: _op
+                                        ,httpTask: httpTask
+                                        ,loadTodosFx: loadTodosFx
+                                        ,todosDecoder: todosDecoder};
+};
+Elm.TodoManager = Elm.TodoManager || {};
+Elm.TodoManager.Main = Elm.TodoManager.Main || {};
+Elm.TodoManager.Main.make = function (_elm) {
+   "use strict";
+   _elm.TodoManager = _elm.TodoManager || {};
+   _elm.TodoManager.Main = _elm.TodoManager.Main || {};
+   if (_elm.TodoManager.Main.values)
+   return _elm.TodoManager.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Effects = Elm.Effects.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $Html$Lazy = Elm.Html.Lazy.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm),
+   $TodoManager$Action = Elm.TodoManager.Action.make(_elm),
+   $TodoManager$Api = Elm.TodoManager.Api.make(_elm),
+   $TodoManager$Ressources = Elm.TodoManager.Ressources.make(_elm);
+   var _op = {};
+   var is13 = function (code) {
+      return _U.eq(code,
+      13) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
    };
-   var headerTodoList = F2(function (address,textNewTodo) {
-      return A2($Html.div,
-      _U.list([$Html$Attributes.id("addTodoForm")]),
-      _U.list([A2($Html.input,
-              _U.list([$Html$Attributes.value(textNewTodo)
-                      ,A3($Html$Events.on,
-                      "input",
-                      $Html$Events.targetValue,
-                      function (_p2) {
-                         return A2($Signal.message,address,UpdateInputText(_p2));
-                      })
-                      ,A2(onEnter,address,AddTodo)]),
-              _U.list([]))
-              ,A2($Html.button,
-              _U.list([A2($Html$Events.onClick,address,AddTodo)
-                      ,$Html$Attributes.disabled($Basics.not(isTodoTextValid(textNewTodo)))]),
-              _U.list([$Html.text("Ajouter")]))
-              ,A2($Html.label,
-              _U.list([]),
-              _U.list([$Html.text(textNewTodo)]))]));
+   var onEnter = F2(function (address,value) {
+      return A3($Html$Events.on,
+      "keydown",
+      A2($Json$Decode.customDecoder,$Html$Events.keyCode,is13),
+      function (_p0) {
+         return A2($Signal.message,address,value);
+      });
    });
-   var Active = {ctor: "Active"};
-   var Completed = {ctor: "Completed"};
-   var All = {ctor: "All"};
-   var initModel = {todos: _U.list([])
-                   ,currentTodo: $Maybe.Nothing
-                   ,currentFilter: All
-                   ,textInput: ""};
    var sectionFiltres = function (address) {
       return A2($Html.ul,
       _U.list([]),
       _U.list([A2($Html.li,
               _U.list([]),
               _U.list([A2($Html.button,
-              _U.list([A2($Html$Events.onClick,address,ChangeFilter(All))]),
+              _U.list([A2($Html$Events.onClick,
+              address,
+              $TodoManager$Action.ChangeFilter($TodoManager$Ressources.All))]),
               _U.list([$Html.text("Tous")]))]))
               ,A2($Html.li,
               _U.list([]),
               _U.list([A2($Html.button,
               _U.list([A2($Html$Events.onClick,
               address,
-              ChangeFilter(Completed))]),
+              $TodoManager$Action.ChangeFilter($TodoManager$Ressources.Completed))]),
               _U.list([$Html.text("Termines")]))]))
               ,A2($Html.li,
               _U.list([]),
               _U.list([A2($Html.button,
               _U.list([A2($Html$Events.onClick,
               address,
-              ChangeFilter(Active))]),
+              $TodoManager$Action.ChangeFilter($TodoManager$Ressources.Active))]),
               _U.list([$Html.text("A faire")]))]))]));
    };
    var footer = F2(function (address,model) {
@@ -12310,6 +12353,146 @@ Elm.TodoManager.make = function (_elm) {
       _U.list([A2($Html$Lazy.lazy,sectionFiltres,address)
               ,$Html.text(textFinal)]));
    });
+   var createTodoItem = F2(function (address,todo) {
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([$Html.text(A2($Basics._op["++"],
+              todo.text,
+              A2($Basics._op["++"]," ",$Basics.toString(todo.id))))
+              ,$Html.text(A2($Basics._op["++"],
+              ", a faire ? ",
+              $Basics.toString($Basics.not(todo.isCompleted))))
+              ,A2($Html.button,
+              _U.list([A2($Html$Events.onClick,
+              address,
+              A2($TodoManager$Action.UpdateIsTodoCompleted,
+              todo,
+              $Basics.not(todo.isCompleted)))]),
+              _U.list([$Html.text(todo.isCompleted ? "Marquer \'non fait\'" : "Marquer \'fait\'")]))]));
+   });
+   var filtreTodo = F2(function (f,todo) {
+      var _p1 = f;
+      switch (_p1.ctor)
+      {case "All": return true;
+         case "Completed": return todo.isCompleted;
+         default: return $Basics.not(todo.isCompleted);}
+   });
+   var updateTodo = F2(function (todo,model) {
+      var updateTodo = function (t) {
+         return _U.eq(t.id,todo.id) ? _U.update(t,
+         {text: todo.text,isCompleted: todo.isCompleted}) : t;
+      };
+      return _U.update(model,
+      {todos: A2($List.map,updateTodo,model.todos)});
+   });
+   var isTodoTextValid = function (s) {
+      return A2(F2(function (x,y) {    return _U.cmp(x,y) < 0;}),
+      3,
+      $String.length(s));
+   };
+   var addTodo = F2(function (textTodo,todos) {
+      var maxId = $List.maximum(A2($List.map,
+      function (todo) {
+         return todo.id;
+      },
+      todos));
+      var newId = function () {
+         var _p2 = maxId;
+         if (_p2.ctor === "Nothing") {
+               return 0;
+            } else {
+               return _p2._0 + 1;
+            }
+      }();
+      return isTodoTextValid(textTodo) ? A2($Basics._op["++"],
+      todos,
+      _U.list([A3($TodoManager$Ressources.Todo,
+      textTodo,
+      newId,
+      false)])) : todos;
+   });
+   var addTodo2 = function (model) {
+      var maxId = $List.maximum(A2($List.map,
+      function (todo) {
+         return todo.id;
+      },
+      model.todos));
+      var newId = function () {
+         var _p3 = maxId;
+         if (_p3.ctor === "Nothing") {
+               return 0;
+            } else {
+               return _p3._0 + 1;
+            }
+      }();
+      return isTodoTextValid(model.textInput) ? _U.update(model,
+      {todos: A2($Basics._op["++"],
+      model.todos,
+      _U.list([A3($TodoManager$Ressources.Todo,
+      model.textInput,
+      newId,
+      false)]))
+      ,textInput: ""}) : model;
+   };
+   var update = F2(function (action,model) {
+      var _p4 = action;
+      switch (_p4.ctor)
+      {case "LoadTodos": return {ctor: "_Tuple2"
+                                ,_0: model
+                                ,_1: $TodoManager$Api.loadTodosFx};
+         case "OnTodosLoaded": var _p5 = _p4._0;
+           if (_p5.ctor === "Ok") {
+                 return {ctor: "_Tuple2"
+                        ,_0: _U.update(model,{todos: _p5._0})
+                        ,_1: $Effects.none};
+              } else {
+                 return {ctor: "_Tuple2"
+                        ,_0: _U.update(model,
+                        {todos: _U.list([]),textInput: $Basics.toString(_p5._0)})
+                        ,_1: $Effects.none};
+              }
+         case "ChangeFilter": return {ctor: "_Tuple2"
+                                     ,_0: _U.update(model,{currentFilter: _p4._0})
+                                     ,_1: $Effects.none};
+         case "UpdateInputText": return {ctor: "_Tuple2"
+                                        ,_0: _U.update(model,{textInput: _p4._0})
+                                        ,_1: $Effects.none};
+         case "AddTodo": return {ctor: "_Tuple2"
+                                ,_0: addTodo2(model)
+                                ,_1: $Effects.none};
+         case "UpdateIsTodoCompleted": var _p6 = _p4._0;
+           return {ctor: "_Tuple2"
+                  ,_0: A2(updateTodo,
+                  A3($TodoManager$Ressources.Todo,_p6.text,_p6.id,_p4._1),
+                  model)
+                  ,_1: $Effects.none};
+         default: return {ctor: "_Tuple2",_0: model,_1: $Effects.none};}
+   });
+   var headerTodoList = F2(function (address,textNewTodo) {
+      return A2($Html.div,
+      _U.list([$Html$Attributes.id("addTodoForm")]),
+      _U.list([A2($Html.input,
+              _U.list([$Html$Attributes.value(textNewTodo)
+                      ,A3($Html$Events.on,
+                      "input",
+                      $Html$Events.targetValue,
+                      function (_p7) {
+                         return A2($Signal.message,
+                         address,
+                         $TodoManager$Action.UpdateInputText(_p7));
+                      })
+                      ,A2(onEnter,address,$TodoManager$Action.AddTodo)]),
+              _U.list([]))
+              ,A2($Html.button,
+              _U.list([A2($Html$Events.onClick,
+                      address,
+                      $TodoManager$Action.AddTodo)
+                      ,$Html$Attributes.disabled($Basics.not(isTodoTextValid(textNewTodo)))]),
+              _U.list([$Html.text("Ajouter")]))
+              ,A2($Html.label,
+              _U.list([]),
+              _U.list([$Html.text(textNewTodo)]))]));
+   });
    var view = F2(function (address,model) {
       return A2($Html.div,
       _U.list([$Html$Attributes.id("briceTodoApp")]),
@@ -12328,134 +12511,36 @@ Elm.TodoManager.make = function (_elm) {
               A2($List.filter,filtreTodo(model.currentFilter),model.todos)))
               ,A3($Html$Lazy.lazy2,footer,address,model)]));
    });
-   var Todo = F3(function (a,b,c) {
-      return {text: a,id: b,isCompleted: c};
-   });
-   var addTodo = F2(function (textTodo,todos) {
-      var maxId = $List.maximum(A2($List.map,
-      function (todo) {
-         return todo.id;
-      },
-      todos));
-      var newId = function () {
-         var _p3 = maxId;
-         if (_p3.ctor === "Nothing") {
-               return 0;
-            } else {
-               return _p3._0 + 1;
-            }
-      }();
-      return isTodoTextValid(textTodo) ? A2($Basics._op["++"],
-      todos,
-      _U.list([A3(Todo,textTodo,newId,false)])) : todos;
-   });
-   var addTodo2 = function (model) {
-      var maxId = $List.maximum(A2($List.map,
-      function (todo) {
-         return todo.id;
-      },
-      model.todos));
-      var newId = function () {
-         var _p4 = maxId;
-         if (_p4.ctor === "Nothing") {
-               return 0;
-            } else {
-               return _p4._0 + 1;
-            }
-      }();
-      return isTodoTextValid(model.textInput) ? _U.update(model,
-      {todos: A2($Basics._op["++"],
-      model.todos,
-      _U.list([A3(Todo,model.textInput,newId,false)]))
-      ,textInput: ""}) : model;
-   };
-   var todoDecoder = A4($Json$Decode.object3,
-   Todo,
-   A2($Json$Decode._op[":="],"text",$Json$Decode.string),
-   A2($Json$Decode._op[":="],"id",$Json$Decode.$int),
-   A2($Json$Decode._op[":="],"isCompleted",$Json$Decode.bool));
-   var todosDecoder = $Json$Decode.list(todoDecoder);
-   var httpTask = A2($Http.get,
-   todosDecoder,
-   "http://localhost:4000/todos");
-   var loadTodosFx = $Effects.task(A2($Task.map,
-   OnTodosLoaded,
-   $Task.toResult(httpTask)));
-   var init = {ctor: "_Tuple2",_0: initModel,_1: loadTodosFx};
-   var update = F2(function (action,model) {
-      var _p5 = action;
-      switch (_p5.ctor)
-      {case "LoadTodos": return {ctor: "_Tuple2"
-                                ,_0: model
-                                ,_1: loadTodosFx};
-         case "OnTodosLoaded": var _p6 = _p5._0;
-           if (_p6.ctor === "Ok") {
-                 return {ctor: "_Tuple2"
-                        ,_0: _U.update(model,{todos: _p6._0})
-                        ,_1: $Effects.none};
-              } else {
-                 return {ctor: "_Tuple2"
-                        ,_0: _U.update(model,
-                        {todos: _U.list([]),textInput: $Basics.toString(_p6._0)})
-                        ,_1: $Effects.none};
-              }
-         case "ChangeFilter": return {ctor: "_Tuple2"
-                                     ,_0: _U.update(model,{currentFilter: _p5._0})
-                                     ,_1: $Effects.none};
-         case "UpdateInputText": return {ctor: "_Tuple2"
-                                        ,_0: _U.update(model,{textInput: _p5._0})
-                                        ,_1: $Effects.none};
-         case "AddTodo": return {ctor: "_Tuple2"
-                                ,_0: addTodo2(model)
-                                ,_1: $Effects.none};
-         case "UpdateIsTodoCompleted": var _p7 = _p5._0;
-           return {ctor: "_Tuple2"
-                  ,_0: A2(updateTodo,A3(Todo,_p7.text,_p7.id,_p5._1),model)
-                  ,_1: $Effects.none};
-         default: return {ctor: "_Tuple2",_0: model,_1: $Effects.none};}
-   });
+   var initModel = {todos: _U.list([])
+                   ,currentTodo: $Maybe.Nothing
+                   ,currentFilter: $TodoManager$Ressources.All
+                   ,textInput: ""};
+   var init = {ctor: "_Tuple2"
+              ,_0: initModel
+              ,_1: $TodoManager$Api.loadTodosFx};
    var Model = F4(function (a,b,c,d) {
       return {todos: a
              ,currentTodo: b
              ,currentFilter: c
              ,textInput: d};
    });
-   return _elm.TodoManager.values = {_op: _op
-                                    ,Model: Model
-                                    ,Todo: Todo
-                                    ,All: All
-                                    ,Completed: Completed
-                                    ,Active: Active
-                                    ,initModel: initModel
-                                    ,init: init
-                                    ,isTodoTextValid: isTodoTextValid
-                                    ,addTodo: addTodo
-                                    ,addTodo2: addTodo2
-                                    ,updateTodo: updateTodo
-                                    ,filtreTodo: filtreTodo
-                                    ,UpdateInputText: UpdateInputText
-                                    ,AddTodo: AddTodo
-                                    ,ChangeFilter: ChangeFilter
-                                    ,ClearCompleted: ClearCompleted
-                                    ,StartEditingTodo: StartEditingTodo
-                                    ,EndEditingTodo: EndEditingTodo
-                                    ,ClearTodo: ClearTodo
-                                    ,LoadTodos: LoadTodos
-                                    ,OnTodosLoaded: OnTodosLoaded
-                                    ,SaveTodos: SaveTodos
-                                    ,UpdateIsTodoCompleted: UpdateIsTodoCompleted
-                                    ,update: update
-                                    ,view: view
-                                    ,headerTodoList: headerTodoList
-                                    ,createTodoItem: createTodoItem
-                                    ,sectionFiltres: sectionFiltres
-                                    ,footer: footer
-                                    ,onEnter: onEnter
-                                    ,is13: is13
-                                    ,httpTask: httpTask
-                                    ,loadTodosFx: loadTodosFx
-                                    ,todosDecoder: todosDecoder
-                                    ,todoDecoder: todoDecoder};
+   return _elm.TodoManager.Main.values = {_op: _op
+                                         ,Model: Model
+                                         ,initModel: initModel
+                                         ,init: init
+                                         ,isTodoTextValid: isTodoTextValid
+                                         ,addTodo: addTodo
+                                         ,addTodo2: addTodo2
+                                         ,updateTodo: updateTodo
+                                         ,filtreTodo: filtreTodo
+                                         ,update: update
+                                         ,view: view
+                                         ,headerTodoList: headerTodoList
+                                         ,createTodoItem: createTodoItem
+                                         ,sectionFiltres: sectionFiltres
+                                         ,footer: footer
+                                         ,onEnter: onEnter
+                                         ,is13: is13};
 };
 Elm.StartApp = Elm.StartApp || {};
 Elm.StartApp.make = function (_elm) {
@@ -12538,12 +12623,12 @@ Elm.Main.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm),
-   $TodoManager = Elm.TodoManager.make(_elm);
+   $TodoManager$Main = Elm.TodoManager.Main.make(_elm);
    var _op = {};
-   var app = $StartApp.start({init: $TodoManager.init
+   var app = $StartApp.start({init: $TodoManager$Main.init
                              ,inputs: _U.list([])
-                             ,update: $TodoManager.update
-                             ,view: $TodoManager.view});
+                             ,update: $TodoManager$Main.update
+                             ,view: $TodoManager$Main.view});
    var main = app.html;
    var runner = Elm.Native.Task.make(_elm).performSignal("runner",
    app.tasks);

@@ -1,4 +1,4 @@
-module TodoManager where
+module TodoManager.Main where
 
 import Html exposing (..)
 import Html.Attributes exposing (style, id, value, hidden, disabled)
@@ -8,11 +8,10 @@ import Signal exposing (Address)
 import Json.Decode as Json
 import String
 import Effects exposing (Effects, Never)
-import Http
 import Task
-import Json.Decode as JsonD exposing ((:=))
-import Json.Encode as JsonE
-
+import TodoManager.Action exposing (..)
+import TodoManager.Api exposing (..)
+import TodoManager.Ressources exposing (..)
 --model
 type alias Model =
     { todos : List Todo
@@ -21,13 +20,6 @@ type alias Model =
     , textInput : String    
     }
     
-type alias Todo =
-    { text : String
-    , id : Int
-    , isCompleted : Bool
-    }
-    
-type Filter = All | Completed | Active
 
 initModel : Model
 initModel = 
@@ -101,18 +93,6 @@ filtreTodo f todo =
         Active
             -> not todo.isCompleted
 --update
-type Action 
-    = UpdateInputText String
-    | AddTodo
-    | ChangeFilter Filter
-    | ClearCompleted
-    | StartEditingTodo Todo
-    | EndEditingTodo Todo
-    | ClearTodo Todo
-    | LoadTodos
-    | OnTodosLoaded (Result Http.Error (List Todo))
-    | SaveTodos
-    | UpdateIsTodoCompleted Todo Bool
 
 update : Action -> Model -> (Model, Effects.Effects Action)
 update action model =
@@ -228,25 +208,5 @@ is13 : Int -> Result String ()
 is13 code =
   if code == 13 then Ok () else Err "not the right key code"
   
--- API
-httpTask : Task.Task Http.Error (List Todo)
-httpTask =
-    Http.get todosDecoder "http://localhost:4000/todos"
- 
-loadTodosFx : Effects.Effects Action
-loadTodosFx =
-    httpTask 
-        |> Task.toResult
-        |> Task.map OnTodosLoaded
-        |> Effects.task
-  
-todosDecoder : JsonD.Decoder (List Todo)
-todosDecoder =
-    JsonD.list todoDecoder
 
-todoDecoder : JsonD.Decoder (Todo)        
-todoDecoder =
-    JsonD.object3 Todo
-        ("text" := JsonD.string)
-        ("id" := JsonD.int)
-        ("isCompleted" := JsonD.bool)
+

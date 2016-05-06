@@ -1,17 +1,18 @@
-import TodoManager
+import TodoManager.Main
 import StartApp
 import Signal
-import Html
+import Html exposing (Html, div, text)
 import Task
 import Effects exposing (Never)
 
-app : StartApp.App TodoManager.Model
+
+app : StartApp.App TodoManager.Main.Model
 app =
   StartApp.start
-    { init = TodoManager.init
+    { init = TodoManager.Main.init
     , inputs = []
-    , update = TodoManager.update
-    , view = TodoManager.view
+    , update = TodoManager.Main.update
+    , view = TodoManager.Main.view
     } 
 
 main : Signal.Signal Html.Html
